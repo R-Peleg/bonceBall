@@ -1,7 +1,9 @@
 //var gravity = 0.05;
 //var mHeight = 100;
 
+var randColor = function () { return '#' + (Math.random() * 0xFFFFFF << 0).toString(16); }
 var square = function (x) { return x * x; }
+
 function Ball() {
     this.radius = 10 + 10 * Math.random();
     this.x = this.radius + (mWidth - 2 * this.radius) * Math.random();
@@ -13,11 +15,12 @@ function Ball() {
     this.vy = 6 * (Math.random() - 0.5);
     //the energy, /m, h relative to the top level, without vx
     this.calcE();
-    this.color = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+    this.color = randColor();
 };
 
 Ball.prototype.calcE = function () {
-    /* calculate according to the formula:
+    /* 
+    * calculate according to the formula:
     * E = 1/2 m v^2 + m g h
     * and h relative to the top of the page.
     */
@@ -69,7 +72,7 @@ Ball.prototype.move = function () {
         this.vy *= -1;
     }
     if (cc) {
-        this.color = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+        this.color = randColor();
     }
 
     this.vy += gravity;
