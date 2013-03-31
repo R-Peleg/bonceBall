@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jumping balls</title>
+</head>
+<body>
+    <canvas id="myCanvas" width="800" height="450" style="border: 1px solid #000000;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+    <p id='jumpCounter'>
+        0</p>
+    <p>
+        Gravity:<input id='gravity' type="text" title='gravity' onchange='oc()' value='0.05' />Number
+        of balls:
+        <input id="ballNumber" type="range" min="1" max="200" value="5" onchange="ballsNumber=value; initBalls()" />
+        Background color:<input id='backcolor' type=color value="#db78e2" onchange='alert(value)'/> 
+    </p>
+    <p>
+        Radius function:<input id='rfunc' type="text" size="50" onchange="paint()" value="15 + 10 * Math.sin((this.x + this.y) / 70);" />
+        <input type="button" value="sin" onclick="radFunc.value = '15 + 10 * Math.sin((this.x + this.y) / 70)'; paint();" />
+        <input type="button" value="radius" onclick="radFunc.value ='this.radius' ; paint()" />
+        <input type="button" value="linear" onclick="radFunc.value ='(this.x + this.y) / 50';paint()" />
+    </p>
+    <input id='sp' value='pause' type="button" onclick="onClick()" />
+    <input type="button" value='relax' onclick='relax()' />
+    <script type="text/javascript" src="ball.js"></script>
+    <script type="text/javascript">
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        var mHeight = c.getAttribute('height', 0);
+        var mWidth = c.getAttribute('width', 0);
+        var ingravity = document.getElementById('gravity');
+        var gravity = parseFloat(ingravity.getAttribute('value'));
+        var spButton = document.getElementById('sp');
+        var radFunc = document.getElementById('rfunc');
+        var ballsNumber = 5;
+
+        function oc() {
+            ingravity = document.getElementById('gravity');
+            gravity = parseFloat(ingravity.value);
+            for (var i = 0; i < balls.length; i++)
+                balls[i].calcE();
+        }
+
+        var fn;
+        Ball.prototype.draw = function (ctx) {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+
+            var retStr = radFunc.value;
+            var fnStr = "return " + retStr;
+            var temp = new Function(fnStr);
+            if (temp != fn && temp != NaN)
+                fn = temp;
+
+            var r = fn.call(this);
+            if (r > 0)
+                ctx.arc(this.x, this.y, r /*this.radius*/, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.fill();
+        };
+
+        var balls = [];
+        function initBalls() {
+            for (var i = 0; i < ballsNumber; i++)
+                balls.push(new Ball());
+
+            var count = balls.length - ballsNumber;
+            balls.reverse();
+            balls.splice(0, count);
+            //balls.reverse();
+        }
+        initBalls();
+
+        function relax() {
+            for (var i = 0; i < balls.length; i++) {
+                var b = balls[i];
+                var len = Math.sqrt(square(b.vx) + square(b.vy));
+                b.vx /= len / 3;
+                b.setVY(b.vy * 3 / len);
+            }
+        }
+
+        function paint() {
+            ctx.clearRect(0, 0, c.width, c.height);
+            ctx.fillStyle = document.getElementById('backcolor').value.toUpperCase();
+            ctx.fillRect(0, 0, mWidth, mHeight);
+            //ctx.fiffRect(0, 0, mWidth, mHeight);
+            for (var i = 0; i < balls.length; i++)
+                balls[i].draw(ctx);
+            if (!paused)
+                for (var i = 0; i < balls.length; i++)
+                    balls[i].move();
+        }
+        var task = setInterval(paint, 25);
+
+        var paused = false;
+        var onClick = function () {
+            if (paused) {
+                task = setInterval(paint, 25);
+                spButton.setAttribute('value', 'Pause');
+            } else {
+                clearInterval(task);
+                spButton.setAttribute('value', 'Resume');
+            }
+            paused = !paused;
+        };
+    </script>
+</body>
+</html>
