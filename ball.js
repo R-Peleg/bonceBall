@@ -17,6 +17,10 @@ function Ball() {
 };
 
 Ball.prototype.calcE = function () {
+    /* calculate according to the formula:
+    * E = 1/2 m v^2 + m g h
+    * and h relative to the top of the page.
+    */
     this.E = square(this.vy) / 2 - this.y * gravity;
 }
 
